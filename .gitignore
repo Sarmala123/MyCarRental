@@ -1,0 +1,18 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Django database
+db.sqlite3
+
+# Virtualenv
+venv/
+ENV/
+env/
+
+# Uploaded media (if you don’t want to include test images)
+media/
+
+# macOS and IDE
+.DS_Store
+.vscode/

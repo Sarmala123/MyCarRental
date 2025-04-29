@@ -1,0 +1,30 @@
+<!-- rental/templates/rental/car_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Cars</title>
+</head>
+<body>
+    <h2>Available Cars</h2>
+    <ul>
+        {% for car in cars %}
+            <li>
+                <h3>{{ car.make }} {{ car.model }} ({{ car.year }})</h3>
+                <p>Price per day: ${{ car.price_per_day }}</p>
+                <p>
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" style="max-width: 300px;">
+                    {% else %}
+                        <p>No image available</p>
+                    {% endif %}
+                </p>
+            </li>
+        {% empty %}
+            <li>No cars available for rent.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
