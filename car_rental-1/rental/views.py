@@ -1,68 +1,48 @@
-# rental/views.py
 from __future__ import annotations
 
 import stripe
 from datetime import datetime
 from django.contrib import messages 
 
-from django.conf             import settings
-from django.contrib.auth     import login
+from django.conf import settings
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http             import HttpResponse
-from django.shortcuts        import get_object_or_404, redirect, render
-from django.urls             import reverse
-from django.utils            import timezone
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 
-from .forms   import (BookingForm, CarFilterForm, MockPaymentForm,
-                      SignUpForm)
-from .models  import Booking, Car, Payment
+from .forms import (BookingForm, CarFilterForm, MockPaymentForm, SignUpForm)
+from .models import Booking, Car, Payment
 from .forms import ProfileForm
 from .models import Profile
 
-# ────────────────────────────────────────────────────────────────────
-#  GLOBAL STRIPE CONFIG
-# ────────────────────────────────────────────────────────────────────
-stripe.api_key = settings.STRIPE_SECRET_KEY  # ← added to pick up your secret key
-
-# ────────────────────────────────────────────────────────────────────
-#  STATIC PAGES / PUBLIC LISTS
-# ────────────────────────────────────────────────────────────────────
 def home(request):
     return render(request, "rental/home.html")
 
-
 def car_list(request):
-    """
-    List only cars flagged as `available=True`, with optional filters.
-    """
-    qs   = Car.objects.filter(available=True)
+    qs = Car.objects.filter(available=True)
     form = CarFilterForm(request.GET or None)
     if form.is_valid():
         qs = form.filter_queryset(qs)
 
     return render(request, "rental/car_list.html", {"cars": qs, "form": form})
 
-
 def car_detail(request, pk):
     car = get_object_or_404(Car, pk=pk, available=True)
     return render(request, "rental/car_detail.html", {"car": car})
 
-
 def rental_search(request):
-    """
-    Show search form.  Once both dates are supplied we exclude cars whose
-    *confirmed / pending* bookings overlap the requested range.
-    """
-    cars      : list[Car] = []
-    start_raw : str | None = request.GET.get("start_date")
-    end_raw   : str | None = request.GET.get("end_date")
+    cars = []
+    start_raw = request.GET.get("start_date")
+    end_raw = request.GET.get("end_date")
 
     if start_raw and end_raw:
         start = datetime.strptime(start_raw, "%Y-%m-%d").date()
-        end   = datetime.strptime(end_raw,   "%Y-%m-%d").date()
+        end = datetime.strptime(end_raw, "%Y-%m-%d").date()
 
         cars = (
             Car.objects.filter(available=True)
@@ -78,14 +58,8 @@ def rental_search(request):
         "cars": cars, "start_date": start_raw, "end_date": end_raw
     })
 
-
 def contact_us(request):
     return render(request, "rental/contact_us.html")
-
-
-# ────────────────────────────────────────────────────────────────────
-#  AUTH / SIGN-UP
-# ────────────────────────────────────────────────────────────────────
 
 def signup(request):
     form = SignUpForm(request.POST or None)
@@ -98,21 +72,16 @@ def signup(request):
         return redirect("login")
     return render(request, "rental/signup.html", {"form": form})
 
-
-# ────────────────────────────────────────────────────────────────────
-#  CUSTOMER DASHBOARD & BOOKING FLOW
-# ────────────────────────────────────────────────────────────────────
 @login_required
 def customer_dashboard(request):
     bookings = (Booking.objects
         .filter(customer=request.user)
         .select_related("car")
-        .prefetch_related("payment")       # ← added so we can check payment.status in template
+        .prefetch_related("payment")
         .order_by("-created_at")
     )
     return render(request, "rental/customer_dashboard.html",
                   {"bookings": bookings})
-
 
 @login_required
 def create_booking(request, car_id):
@@ -123,21 +92,15 @@ def create_booking(request, car_id):
         booking = form.save(commit=False)
         booking.customer = request.user
         booking.save()
-        return redirect("my_bookings")    # matches name in urls.py
+        return redirect("my_bookings")
 
     return render(request, "rental/create_booking.html", {
         "car": car,
         "form": form,
     })
 
-
 @login_required
 def my_bookings(request):
-    """
-    Customer dashboard: show all your bookings,
-    and if a booking is CONFIRMED but unpaid,
-    display a “Pay now” button.
-    """
     qs = (
         Booking.objects
                .filter(customer=request.user)
@@ -150,8 +113,6 @@ def my_bookings(request):
         {"bookings": qs},
     )
 
-
-# (you can remove view_bookings if it's unused, but I’ve left it untouched)
 @login_required
 def view_bookings(request):
     qs = Booking.objects.filter(customer=request.user).select_related("car")
@@ -159,15 +120,8 @@ def view_bookings(request):
         "bookings": qs
     })
 
-
-# ────────────────────────────────────────────────────────────────────
-#  PAYMENT  (mock + Stripe)
-# ────────────────────────────────────────────────────────────────────
 @login_required
 def pay_booking(request, booking_id: int):
-    """
-    Mock offline payment – falls back to Stripe in production.
-    """
     booking = get_object_or_404(
         Booking.objects.select_related("payment", "car"),
         pk=booking_id, customer=request.user, status=Booking.CONFIRMED
@@ -182,14 +136,13 @@ def pay_booking(request, booking_id: int):
 
     form = MockPaymentForm(request.POST or None, instance=payment)
     if request.method == "POST" and form.is_valid():
-        payment.status  = Payment.PAID
+        payment.status = Payment.PAID
         payment.paid_at = timezone.now()
         payment.save()
         return redirect("payment_receipt", pk=payment.pk)
 
     return render(request, "rental/payment_form.html",
                   {"booking": booking, "payment": payment, "form": form})
-
 
 @login_required
 def payment_receipt(request, pk: int):
@@ -199,13 +152,8 @@ def payment_receipt(request, pk: int):
     )
     return render(request, "rental/payment_receipt.html", {"payment": payment})
 
-
-# ────────────────────────────────────────────────────────────────────
-#  Stripe Checkout Integration
-# ────────────────────────────────────────────────────────────────────
 @login_required
 def stripe_checkout(request, booking_id: int):
-    # (1) require only that booking is CONFIRMED
     booking = get_object_or_404(
         Booking,
         pk=booking_id,
@@ -213,20 +161,16 @@ def stripe_checkout(request, booking_id: int):
         status=Booking.CONFIRMED,
     )
 
-    # (2) ensure we have a Payment record
     payment, _ = Payment.objects.get_or_create(
         booking=booking, defaults={"amount": booking.total_price}
     )
 
-    # (3) if already paid, skip to success
     if payment.status == Payment.PAID:
-        return redirect("payment_success", payment_id=payment.pk)  # ← added
+        return redirect("payment_success", payment_id=payment.pk)
 
-    # (4) compute total in cents
-    days   = (booking.end_date - booking.start_date).days or 1
+    days = (booking.end_date - booking.start_date).days or 1
     amount = int(days * booking.car.price_per_day * 100)
 
-    # (5) create Stripe Checkout Session
     session = stripe.checkout.Session.create(
         mode="payment",
         payment_method_types=["card"],
@@ -241,81 +185,70 @@ def stripe_checkout(request, booking_id: int):
             },
             "quantity": 1,
         }],
-        metadata={"payment_id": payment.pk},                         # ← added
+        metadata={"payment_id": payment.pk},
         success_url=(
             request.build_absolute_uri(
                 reverse("payment_success")
                 + f"?payment_id={payment.pk}"
             )
-        ),                                                           # ← added
+        ),
         cancel_url=(
             request.build_absolute_uri(
                 reverse("payment_cancel")
                 + f"?payment_id={payment.pk}"
             )
-        ),                                                           # ← added
+        ),
     )
 
-    # (6) store session ID so you can verify in webhook if desired
-    payment.stripe_session_id = session.id  # ← added (make sure field exists!)
-    payment.save()                         # ← added
+    payment.stripe_session_id = session.id
+    payment.save()
 
     return redirect(session.url, code=303)
 
-
-@csrf_exempt          # Stripe sends unsigned JSON
+@csrf_exempt
 def stripe_webhook(request):
     payload = request.body
-    sig     = request.headers.get("stripe-signature", "")
+    sig = request.headers.get("stripe-signature", "")
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig, settings.STRIPE_WEBHOOK_SECRET  # ← make sure this is in your settings
+            payload, sig, settings.STRIPE_WEBHOOK_SECRET
         )
     except (ValueError, stripe.error.SignatureVerificationError):
         return HttpResponse(status=400)
 
     if event["type"] == "checkout.session.completed":
         sess = event["data"]["object"]
-        pid  = sess["metadata"].get("payment_id")        # ← match metadata key
+        pid = sess["metadata"].get("payment_id")
         try:
             payment = Payment.objects.get(pk=pid)
         except Payment.DoesNotExist:
             pass
         else:
-            payment.status  = Payment.PAID
+            payment.status = Payment.PAID
             payment.paid_at = timezone.now()
             payment.save()
 
     return HttpResponse(status=200)
 
-
-# ────────────────────────────────────────────────────────────────────
-#  POST-PAYMENT PAGES
-# ────────────────────────────────────────────────────────────────────
 @login_required
 def payment_success(request):
-    pid = request.GET.get("payment_id")      # ← added: read back from querystring
+    pid = request.GET.get("payment_id")
     payment = get_object_or_404(
         Payment, pk=pid, booking__customer=request.user
     )
     return render(request, "rental/payment_success.html", {"payment": payment})
 
-
 @login_required
 def payment_cancel(request):
-    pid = request.GET.get("payment_id")      # ← added
+    pid = request.GET.get("payment_id")
     payment = get_object_or_404(
         Payment, pk=pid, booking__customer=request.user
     )
     return render(request, "rental/payment_cancel.html", {"payment": payment})
 
-
-# ────────────────────────────────────────────────────────────────────
-#  ADMIN VIEWS  (using built-in Django Admin for CRUD)
-# ────────────────────────────────────────────────────────────────────
 @staff_member_required
 def manage_bookings(request):
-    qs     = (Booking.objects.select_related("car", "customer")
+    qs = (Booking.objects.select_related("car", "customer")
                            .order_by("-created_at"))
 
     status = request.GET.get("status")
@@ -324,7 +257,6 @@ def manage_bookings(request):
 
     return render(request, "rental/manage_bookings.html",
                   {"bookings": qs, "status_choices": Booking.STATUS_CHOICES})
-
 
 @staff_member_required
 def update_booking_status(request, booking_id: int, new_status: str):
@@ -336,11 +268,9 @@ def update_booking_status(request, booking_id: int, new_status: str):
 
 @login_required
 def profile(request):
-    # If no Profile exists yet, create one on the spot:
     profile_obj, _ = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        # Bind POST + FILES to the form
         form = ProfileForm(request.POST, request.FILES, instance=profile_obj)
         if form.is_valid():
             form.save()
@@ -352,4 +282,3 @@ def profile(request):
         "profile": profile_obj,
         "form": form,
     })
-

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Rental Home</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Car Rental Service</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'car_list' %}">Cars</a></li>
+                <li><a href="{% url 'rental_search' %}">Search Rentals</a></li>
+                <li><a href="{% url 'signup' %}">Sign Up</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Our Services</h2>
+            <p>Explore our wide range of cars available for rent. Whether you need a car for a day or a month, we have the perfect vehicle for you!</p>
+        </section>
+        <section>
+            <h2>Featured Cars</h2>
+            <p>Check out our featured cars that are available for rent right now!</p>
+            <a href="{% url 'car_list' %}">View Cars</a>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Car Rental Service. All rights reserved.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ car.name }}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>{{ car.name }}</h1>
+    </header>
+    <main>
+        <section>
+            <img src="{{ car.image.url }}" alt="{{ car.name }}">
+            <p><strong>Description:</strong> {{ car.description }}</p>
+            <p><strong>Price per day:</strong> ${{ car.price_per_day }}</p>
+            <p><strong>Available:</strong> {{ car.available|yesno:"Yes,No" }}</p>
+        </section>
+        <section>
+            <h2>Booking Information</h2>
+            <form action="{% url 'create_booking' car.id %}" method="post">
+                {% csrf_token %}
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" required>
+                
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" required>
+                
+                <button type="submit">Book Now</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; {{ current_year }} Car Rental</p>
+    </footer>
+</body>
+</html>

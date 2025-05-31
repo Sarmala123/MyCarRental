@@ -1,0 +1,43 @@
+from django.urls import path
+
+from .views import (
+    home,
+    car_list,
+    car_detail,
+    rental_search,
+    contact_us,
+    signup,
+    customer_dashboard,
+    create_booking,
+    my_bookings,
+    view_bookings,
+    pay_booking,
+    payment_receipt,
+    stripe_checkout,
+    payment_success,
+    payment_cancel,
+    manage_bookings,
+    update_booking_status,
+    profile,
+)
+
+urlpatterns = [
+    path('', home, name='home'),
+    path('cars/', car_list, name='car_list'),
+    path('cars/<int:pk>/', car_detail, name='car_detail'),
+    path('rental_search/', rental_search, name='rental_search'),
+    path('contact/', contact_us, name='contact_us'),
+    path('signup/', signup, name='signup'),
+    path('dashboard/', customer_dashboard, name='customer_dashboard'),
+    path('create_booking/<int:car_id>/', create_booking, name='create_booking'),
+    path('my_bookings/', my_bookings, name='my_bookings'),
+    path('view_bookings/', view_bookings, name='view_bookings'),
+    path('pay_booking/<int:booking_id>/', pay_booking, name='pay_booking'),
+    path('payment_receipt/<int:pk>/', payment_receipt, name='payment_receipt'),
+    path('stripe_checkout/<int:booking_id>/', stripe_checkout, name='stripe_checkout'),
+    path('payment_success/', payment_success, name='payment_success'),
+    path('payment_cancel/', payment_cancel, name='payment_cancel'),
+    path('manage_bookings/', manage_bookings, name='manage_bookings'),
+    path('update_booking_status/<int:booking_id>/<str:new_status>/', update_booking_status, name='update_booking_status'),
+    path('profile/', profile, name='profile'),
+]

@@ -1,0 +1,22 @@
+{% extends "rental/base.html" %}
+
+{% block title %}Complete Payment{% endblock %}
+
+{% block content %}
+  <div class="mx-auto" style="max-width: 500px;">
+    <h1 class="mb-4">Payment for {{ booking.car }}</h1>
+    <p><strong>Amount due:</strong> ${{ payment.amount }}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary w-100">
+        {% if form.instance.status == form.instance.PAID %}
+          Already Paid
+        {% else %}
+          Pay Now
+        {% endif %}
+      </button>
+    </form>
+  </div>
+{% endblock %}

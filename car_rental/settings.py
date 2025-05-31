@@ -11,16 +11,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
+
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-c@bme2q%o5c@g)w+1#=$erjaagna*t-wt+9k+df8ed#z=0-*#0'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rental',
     'crispy_forms',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -140,4 +144,32 @@ TEMPLATES = [
 
 # Define where media files will be stored
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'rental' / 'static',   # ← include your app’s static dir
+]    
+# settings.py
+LOGIN_URL          = 'login'               # name of your login URL (rental/urls.py)
+LOGIN_REDIRECT_URL = 'customer_dashboard'  # after login, where to go
+LOGOUT_REDIRECT_URL = 'home'               # after logout, back to home
+
+load_dotenv()                      # if you keep keys in a .env file
+
+# Stripe (test mode)
+STRIPE_SECRET_KEY      = os.getenv(
+    "STRIPE_SECRET_KEY",
+    "sk_test_51RN5je04GAtTwZuUIfeY70rbuU2Gl5RQFaIwBGoimTXuIhsocA5u6v9Z7mmOQnaR6Qs79UUIMYXmHJ9Yi1mJRbgI00ShPiPjuv"
+)
+STRIPE_PUBLISHABLE_KEY = os.getenv(
+    "STRIPE_PUBLISHABLE_KEY",
+    "pk_test_51RN5je04GAtTwZuUbWKjTYUk5kPXCcbwjBdthXJ3385CY7Jrn6aPZolSLG999SC6g1k7UW5C4NQs2F6MBr4VOABP00VF6sKIFL"
+)
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+# MEDIA settings (for user-uploaded files):
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")

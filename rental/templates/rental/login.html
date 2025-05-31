@@ -1,0 +1,41 @@
+{% extends "rental/base.html" %}
+{% load static widget_tweaks %}
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h2 class="card-title mb-4 text-center">Welcome back</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="form-floating mb-3">
+            {{ form.username|add_class:"form-control" }}
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="form-floating mb-4">
+            {{ form.password|add_class:"form-control" }}
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {% if form.password.errors %}
+              <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">
+              Log in
+            </button>
+            <a href="{% url 'signup' %}" class="btn btn-outline-secondary">
+              Sign up
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

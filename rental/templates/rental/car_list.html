@@ -1,33 +1,53 @@
-{# rental/templates/rental/car_list.html #}
-{% load static %}
-<!DOCTYPE html>
-<html>
-<head> …your head… </head>
-<body>
-  <div class="container my-5">
+{# templates/rental/car_list.html #}
+{% extends "rental/base.html" %}
+{% block title %}Available cars{% endblock %}
 
-    <!-- 1) Filter form goes here -->
-  <!-- rental/templates/rental/car_list.html -->
+{% block content %}
+  <h1>Available cars</h1>
 
-<form method="get" class="row g-2 mb-4">
-    <div class="col">
-      {{ form.make.label_tag }}
+  <form method="get" class="row gx-3 gy-2 align-items-end mb-4">
+    <div class="col-md-2">
+      <label for="id_make" class="form-label">Make:</label>
       {{ form.make }}
     </div>
-    <div class="col">
-      {{ form.model.label_tag }}
+    <div class="col-md-2">
+      <label for="id_model" class="form-label">Model:</label>
       {{ form.model }}
     </div>
-    <div class="col">
-      {{ form.price_min.label_tag }}
+    <div class="col-md-2">
+      <label for="id_price_min" class="form-label">Min price / day:</label>
       {{ form.price_min }}
     </div>
-    <div class="col">
-      {{ form.price_max.label_tag }}
+    <div class="col-md-2">
+      <label for="id_price_max" class="form-label">Max price / day:</label>
       {{ form.price_max }}
     </div>
-    <div class="col d-grid">
-      <button type="submit" class="btn btn-primary">Filter</button>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-dark w-100">Filter</button>
     </div>
   </form>
-  
+
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for car in cars %}
+      <div class="col">
+        <div class="card h-100">
+          {% if car.image %}
+            <img src="{{ car.image.url }}"
+                 class="card-img-top"
+                 alt="{{ car }}">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ car.make }} {{ car.model }} ({{ car.year }})</h5>
+            <p class="card-text"><strong>${{ car.price_per_day }}</strong> / day</p>
+            <a href="{% url 'car_detail' car.pk %}"
+               class="mt-auto btn btn-primary">
+              View details
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No cars match your filters.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

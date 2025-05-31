@@ -1,0 +1,33 @@
+{% extends "rental/base.html" %}
+{% block title %}Manage Bookings{% endblock %}
+{% block content %}
+  <h1>All Bookings</h1>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Car</th><th>Customer</th><th>From</th><th>To</th><th>Status</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr>
+        <td>{{ b.car }}</td>
+        <td>{{ b.customer }}</td>
+        <td>{{ b.start_date }}</td>
+        <td>{{ b.end_date }}</td>
+        <td>{{ b.get_status_display }}</td>
+        <td>
+          {% for code,label in status_choices %}
+            {% if code != b.status %}
+              <a href="{% url 'update_booking_status' b.id code %}"
+                 class="btn btn-sm btn-outline-primary">
+                {{ label }}
+              </a>
+            {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

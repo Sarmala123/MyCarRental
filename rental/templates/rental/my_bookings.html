@@ -1,0 +1,47 @@
+{% extends "rental/base.html" %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+  <h1>My Bookings</h1>
+
+  {% if bookings %}
+    <ul class="list-group">
+      {% for b in bookings %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            {{ b.car }} — {{ b.start_date }} to {{ b.end_date }}
+            <span
+              class="badge
+                     {% if b.status == 'confirmed' %}bg-success
+                     {% elif b.status == 'pending' %}bg-warning text-dark
+                     {% else %}bg-danger{% endif %}">
+              {{ b.get_status_display }}
+            </span>
+          </div>
+
+          <div>
+            {% if b.status == 'confirmed'  %}
+            
+
+              {# show “Pay now” if there’s no payment yet #}
+              {% if not b.payment %}
+                <a href="{% url 'stripe_checkout' b.id %}"
+                   class="btn btn-sm btn-primary">
+                  Pay now
+                </a>
+              {# else show “View receipt” only if there is one #}
+              {% elif b.payment %}
+                <a href="{% url 'payment_receipt' b.payment.pk %}"
+                   class="btn btn-sm btn-outline-success">
+                  View receipt
+                </a>
+              {% endif %}
+
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You don’t have any bookings yet.</p>
+  {% endif %}
+{% endblock %}

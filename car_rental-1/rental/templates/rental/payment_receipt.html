@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Receipt</h1>
+        <p>Thank you for your payment!</p>
+        <h2>Payment Details</h2>
+        <ul>
+            <li><strong>Payment ID:</strong> {{ payment.id }}</li>
+            <li><strong>Amount:</strong> ${{ payment.amount }}</li>
+            <li><strong>Status:</strong> {{ payment.get_status_display }}</li>
+            <li><strong>Paid At:</strong> {{ payment.paid_at }}</li>
+        </ul>
+        <h2>Booking Details</h2>
+        <ul>
+            <li><strong>Car:</strong> {{ payment.booking.car }}</li>
+            <li><strong>Start Date:</strong> {{ payment.booking.start_date }}</li>
+            <li><strong>End Date:</strong> {{ payment.booking.end_date }}</li>
+        </ul>
+        <a href="{% url 'my_bookings' %}">Back to My Bookings</a>
+    </div>
+</body>
+</html>

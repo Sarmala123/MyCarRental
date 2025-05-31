@@ -1,0 +1,14 @@
+{% extends "rental/base.html" %}
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+  <div class="text-center my-5">
+    <h1 class="display-4 text-success">Payment Successful</h1>
+    <p class="lead">
+      You’ve paid ${{ payment.amount }} for {{ payment.booking.car }}.
+    </p>
+    <a href="{% url 'customer_dashboard' %}" class="btn btn-primary">
+      Back to Dashboard
+    </a>
+  </div>
+{% endblock %}

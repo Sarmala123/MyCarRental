@@ -1,16 +1,58 @@
-<!-- rental/templates/rental/customer_dashboard.html -->
+{# templates/rental/customer_dashboard.html #}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Dashboard</title>
-</head>
-<body>
-    <h2>Welcome, Customer!</h2>
-    <p>Here are your current bookings:</p>
-    <!-- Add logic to show customer bookings -->
-    <p><a href="{% url 'car_list' %}">View Available Cars</a></p>
-</body>
-</html>
+{% extends "rental/base.html" %}
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+  <h1>My Bookings</h1>
+
+  {% if bookings %}
+    <ul class="list-group">
+      {% for b in bookings %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ b.car }}</strong> &mdash; 
+            {{ b.start_date|date:"M j, Y" }} &ndash; {{ b.end_date|date:"M j, Y" }}
+            
+            {# Decide which badge to show: Paid / Confirmed / Pending #}
+            {% if b.payment and b.payment.status == "paid" %}
+              <!-- Payment has been completed: show “Paid” badge -->
+              <span class="badge bg-success">Paid</span>
+
+            {% elif b.status == "confirmed" %}
+              <!-- Booking is confirmed but not yet paid -->
+              <span class="badge bg-warning text-dark">Confirmed (Pending Payment)</span>
+
+            {% elif b.status == "pending" %}
+              <!-- Admin hasn’t confirmed this booking at all yet -->
+              <span class="badge bg-secondary">Pending Approval</span>
+
+            {% else %}
+              <!-- Anything else (e.g. b.status == "canceled") -->
+              <span class="badge bg-danger">Canceled</span>
+            {% endif %}
+          </div>
+
+          <div>
+            {# If booking is confirmed but not yet paid ⇒ show “Pay now” #}
+            {% if b.status == "confirmed" and (not b.payment or b.payment.status != "paid") %}
+              <a href="{% url 'stripe_checkout' b.id %}"
+                 class="btn btn-sm btn-primary">
+                Pay now
+              </a>
+
+            {# If booking has a paid payment ⇒ show “View receipt” #}
+            {% elif b.payment and b.payment.status == "paid" %}
+              <a href="{% url 'payment_receipt' b.payment.pk %}"
+                 class="btn btn-sm btn-outline-success">
+                View receipt
+              </a>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You don’t have any bookings yet.</p>
+  {% endif %}
+{% endblock %}

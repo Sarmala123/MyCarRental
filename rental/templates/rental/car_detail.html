@@ -1,0 +1,21 @@
+{% extends "rental/base.html" %}
+{% block title %}{{ car }}{% endblock %}
+{% block content %}
+  <h1>{{ car }}</h1>
+  {% if car.image %}
+    <img src="{{ car.image.url }}" class="img-fluid mb-4" alt="{{ car }}">
+  {% endif %}
+  <p><strong>Price:</strong> ${{ car.price_per_day }} / day</p>
+  <p><strong>Available from:</strong> {{ car.next_available_date }}</p>
+
+  {% if user.is_authenticated %}
+    <a href="{% url 'create_booking' car.id %}" class="btn btn-primary">
+      Book now
+    </a>
+  {% else %}
+    <a href="{% url 'login' %}?next={% url 'create_booking' car.id %}"
+       class="btn btn-outline-secondary">
+      Log in to book
+    </a>
+  {% endif %}
+{% endblock %}

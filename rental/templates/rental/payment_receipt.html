@@ -1,0 +1,25 @@
+{# rental/templates/rental/payment_receipt.html #}
+{% extends "rental/base.html" %}
+{% block title %}Payment Receipt{% endblock %}
+
+{% block content %}
+  <h1>Payment Receipt</h1>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><strong>Car:</strong> {{ payment.booking.car }}</p>
+      <p><strong>Rental dates:</strong>
+         {{ payment.booking.start_date }} → {{ payment.booking.end_date }}</p>
+      <p><strong>Amount paid:</strong> ${{ payment.amount }}</p>
+      <p><strong>Payment date:</strong>
+         {{ payment.paid_at|date:"F j, Y, H:i" }}</p>
+      {% if payment.booking.payment_ref %}
+        <p><strong>Reference:</strong> {{ payment.booking.payment_ref }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <a href="{% url 'customer_dashboard' %}" class="btn btn-secondary">
+    Back to dashboard
+  </a>
+{% endblock %}

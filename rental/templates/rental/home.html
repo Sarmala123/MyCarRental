@@ -1,15 +1,33 @@
-<!-- rental/templates/rental/home.html -->
+{% extends "rental/base.html" %}
+{% block title %}Welcome to MyCarRental{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-</head>
-<body>
-    <h1>Welcome to the Car Rental System</h1>
-    <p>Browse our available cars and make bookings!</p>
-    <p><a href="{% url 'car_list' %}">View Available Cars</a></p>
-</body>
-</html>
+{% block content %}
+  <div class="bg-light text-center rounded-3 p-5 my-4">
+    <h1 class="display-3 fw-bold">Welcome to MyCarRental</h1>
+    <p class="fs-5 text-muted mb-4">
+      Browse our fleet of premium cars and make your next journey unforgettable.
+    </p>
+    <a href="{% url 'rental_search' %}" class="btn btn-primary btn-lg">
+      View Available Cars
+    </a>
+  </div>
+
+  <!-- beneath the hero you could drop in any features, e.g.: -->
+  <div class="row text-center">
+    <div class="col-md-4 mb-4">
+      <i class="bi bi-speedometer2 fs-1 text-primary"></i>
+      <h4 class="mt-3">Fast &amp; Easy</h4>
+      <p class="text-muted">Instant booking and hassle-free pickup.</p>
+    </div>
+    <div class="col-md-4 mb-4">
+      <i class="bi bi-wallet2 fs-1 text-success"></i>
+      <h4 class="mt-3">Transparent Pricing</h4>
+      <p class="text-muted">No hidden fees—ever.</p>
+    </div>
+    <div class="col-md-4 mb-4">
+      <i class="bi bi-shield-lock fs-1 text-info"></i>
+      <h4 class="mt-3">Secure Payments</h4>
+      <p class="text-muted">Powered by Stripe with end-to-end encryption.</p>
+    </div>
+  </div>
+{% endblock %}
